@@ -229,7 +229,7 @@ def create_subsonic_response(data: dict = None, version: str = "1.16.1"):
             "status": "ok",
             "version": version,
             "type": "Tidal & Navidrome",
-            "serverVersion": "http://127.0.0.1:8000/", #声明
+            "serverVersion": "https://github.com/sky8282/Tidal-Navidrome-Bridge",
             "openSubsonic": True
         }
     }
