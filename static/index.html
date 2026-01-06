@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico">
+    <title>音乐服配置面板</title>
+    
+    <style>
+    html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        display: block;
+        padding-top: 40px; 
+        padding-bottom: 40px;
+        box-sizing: border-box;
+        background-color: #121212;
+        color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        overflow-x: hidden;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        left: 0; top: 0;
+        width: 100vw; height: 100vh;
+        z-index: 20000;
+        display: none; 
+        opacity: 0;
+        transition: opacity 0.2s;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 100px;
+        background-color: rgba(0,0,0,0.85);
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-overlay.is-visible {
+        display: flex !important;
+        opacity: 1;
+        pointer-events: auto; 
+    }
+
+    .modal-content {
+        background-color: #1e1e1e;
+        padding: 40px;
+        border: 1px solid #333;
+        border-radius: 12px;
+        width: 90%; 
+        max-width: 400px; 
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        text-align: center;
+        position: relative;
+    }
+
+    #help-modal { align-items: center; padding-top: 0; z-index: 21000; }
+    #help-modal .modal-content { max-width: 450px; padding: 0; text-align: left; }
+
+    .btn {
+        padding: 12px 20px; 
+        border-radius: 6px; border: none; cursor: pointer; 
+        font-size: 1rem; font-weight: bold; 
+        transition: all 0.2s ease; 
+        color: #000000; 
+        position: relative; 
+        z-index: 10;
+        display: inline-block; 
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+    
+    .btn-primary { background-color: #00bfa5; }
+    .btn-danger { background-color: #ff4444; }
+    .btn-secondary { background-color: #bbb; }
+
+    .btn:hover:not(:disabled) {
+        background-color: #ffeb3b !important; 
+        color: #000000 !important;
+        box-shadow: 0 0 15px rgba(255, 235, 59, 0.8); 
+        transform: none; 
+    }
+
+    .btn:active:not(:disabled) {
+        background-color: #fdd835 !important;
+        opacity: 0.9;
+    }
+    
+    .btn:disabled {
+        background-color: #333 !important; color: #777 !important; 
+        cursor: not-allowed; box-shadow: none; border: 1px solid #444;
+    }
+
+    .btn-block { width: 100%; display: block; }
+    .row-btns { display: flex; gap: 15px; }
+
+    .header-actions {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 10px;
+        margin-bottom: 10px; 
+    }
+
+    .btn-icon-round {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background-color: #2a2a2a;
+        border: 1px solid #444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #fff;
+        transition: all 0.2s ease;
+    }
+
+    .btn-icon-round svg {
+        width: 24px;
+        height: 24px;
+        fill: currentColor;
+    }
+
+    .btn-icon-round:hover {
+        background-color: #ffeb3b !important;
+        color: #000000 !important;
+        box-shadow: 0 0 15px rgba(255, 235, 59, 0.8);
+        border-color: #ffeb3b;
+        transform: scale(1.1);
+    }
+
+    #main-container {
+        width: 100%;
+        max-width: 600px; 
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+        position: relative; 
+        z-index: 1; 
+    }
+
+    .config-header {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 5px; 
+    }
+    .config-header h1 { margin: 0; padding: 0; }
+    .config-header p { display: none; } 
+
+    .config-card {
+        width: 100%;
+        box-sizing: border-box; 
+        background: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        text-align: left; 
+    }
+    
+    .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #444;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+        min-height: 45px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .header-right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex: 1; /* 占据剩余空间 */
+    }
+
+    .title-icon {
+        width: 28px;
+        height: 28px;
+        margin-right: 12px;
+        vertical-align: middle;
+        object-fit: contain;
+    }
+
+    .config-card h2 { 
+        margin: 0; 
+        padding: 0; 
+        border: none;
+        color: #fff; 
+        text-align: left;
+        display: flex;
+        align-items: center;
+    }
+
+    .user-badge {
+        font-size: 0.9rem;
+        color: #00bfa5;
+        background: rgba(0, 191, 165, 0.1);
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: 1px solid rgba(0, 191, 165, 0.3);
+        font-family: monospace;
+    }
+
+    .highlight-yellow {
+        color: #ffeb3b;
+        font-weight: bold;
+    }
+
+    .form-group { margin-bottom: 20px; width: 100%; text-align: left;}
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #ccc; }
+    .form-control {
+        width: 100%; padding: 12px; border-radius: 6px;
+        border: 1px solid #444; background: #2a2a2a; color: #fff;
+        box-sizing: border-box; font-size: 1rem;
+    }
+    .form-control:focus { border-color: #00bfa5; outline: none; background: #333; }
+
+    .help-header {
+        background: #1e1e1e; padding: 15px 20px; border-bottom: 1px solid #333;
+        display: flex; justify-content: space-between; align-items: center;
+        border-radius: 12px 12px 0 0;
+    }
+    .help-header h3 { margin: 0; font-size: 1.2rem; color: #00bfa5; }
+    .close-help { cursor: pointer; font-size: 1.5rem; color: #888; }
+    .help-body { padding: 20px; max-height: 60vh; overflow-y: auto; }
+    .help-title { color: #fff; border-left: 4px solid #00bfa5; padding-left: 10px; margin-bottom: 10px; font-weight: bold; }
+    .help-links { list-style: none; padding: 0; margin: 0; }
+    .help-links li { margin-bottom: 10px; background: #2a2a2a; padding: 10px; border-radius: 6px; }
+    .help-links .app-name { display: block; font-weight: bold; color: #ddd; margin-bottom: 4px; }
+    .help-links a { color: #4fc3f7; text-decoration: none; font-size: 0.9rem; word-break: break-all; }
+    .help-links a:hover { text-decoration: underline; color: #81d4fa; }
+
+    .auth-display {
+        background: #252525; padding: 20px; margin: 20px 0; border-radius: 8px;
+        text-align: center; border: 1px dashed #444; display: none;
+    }
+    .user-code {
+        font-size: 2em; font-family: monospace; color: #00bfa5;
+        margin: 15px 0; letter-spacing: 5px; font-weight: bold;
+    }
+    
+    .status-text { 
+        margin: 0;
+        font-size: 0.95rem;
+        text-align: right; 
+        white-space: nowrap; 
+        overflow: hidden; 
+        text-overflow: ellipsis;
+        color: #aaa;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    </style>
+</head>
+<body>
+
+    <div id="login-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>🔐 用户登录</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>用户名:</label>
+                    <input type="text" id="username" class="form-control" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>密码:</label>
+                    <input type="password" id="password" class="form-control" required autocomplete="off">
+                </div>
+                <p id="login-error" style="color: #ff4444; margin-bottom: 20px; min-height: 1.2em;"></p>
+                <button type="submit" id="login-button" class="btn btn-primary btn-block">登录</button>
+                <div style="margin-top: 15px; text-align: center;">
+                    <button type="button" id="show-register-btn" style="background:none; border:none; color:#00bfa5; cursor:pointer; text-decoration:underline;">没有账号？注册一个</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="register-modal" class="modal-overlay" onclick="if(event.target === this) document.getElementById('register-modal').classList.remove('is-visible')">
+        <div class="modal-content">
+            <h2>📝 新用户注册</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label>用户名:</label>
+                    <input type="text" id="reg-username" class="form-control" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>密码:</label>
+                    <input type="password" id="reg-password" class="form-control" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>邀请码:</label>
+                    <input type="text" id="reg-invite-code" class="form-control" required autocomplete="off" placeholder="请输入邀请码">
+                </div>
+                <p id="register-error" style="color: #ff4444; margin-bottom: 20px; min-height: 1.2em;"></p>
+                <button type="submit" id="register-button" class="btn btn-primary btn-block">注册</button>
+                <div style="margin-top: 15px; text-align: center;">
+                     <button type="button" id="show-login-btn" style="background:none; border:none; color:#00bfa5; cursor:pointer; text-decoration:underline;">已有账号？返回登录</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="help-modal" class="modal-overlay" onclick="if(event.target === this) toggleHelpModal(false)">
+        <div class="modal-content">
+            <div class="help-header">
+                <h3>客户端连接指南</h3>
+                <span class="close-help" onclick="toggleHelpModal(false)">&times;</span>
+            </div>
+            <div class="help-body">
+                <div class="help-section">
+                    <div class="help-title">🖥️ 电脑端:</div>
+                    <ul class="help-links">
+                        <li>
+                            <span class="app-name">Feishin (Subsonic & Navidrome)</span>
+                            <a href="https://github.com/jeffvli/feishin" target="_blank">https://github.com/jeffvli/feishin</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="help-section">
+                    <div class="help-title">📱 手机端:</div>
+                    <ul class="help-links">
+                        <li>
+                            <span class="app-name">DS Cloud (Navidrome)</span>
+                            <span style="color:#888; font-size:0.9rem;">请在应用商店搜索下载</span>
+                        </li>
+                        <li>
+                            <span class="app-name">箭头音乐 (Subsonic & Navidrome)</span>
+                            <span style="color:#888; font-size:0.9rem;">请在应用商店搜索下载</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-container" style="display: none;">
+        
+        <div class="config-header">
+            <h1>Navidrome & Tidal 配置</h1>
+            
+            <div class="header-actions">
+                <button class="btn-icon-round" onclick="toggleHelpModal(true)" title="使用说明">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.93-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.007 7.007 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 14.3 2h-4.6a.5.5 0 0 0-.49.42l-.36 2.54a7.007 7.007 0 0 0-1.63.94l-2.39-.96a.5.5 0 0 0-.61.22L2.3 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s-.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.93 3.32a.5.5 0 0 0 .61.22l2.39-.96c.48.39 1.03.72 1.63.94l.36 2.54c.04.24.25.42.49.42h4.6c.24 0 .45-.18.49-.42l.36-2.54c.6-.22 1.15-.55 1.63-.94l2.39.96a.5.5 0 0 0 .61-.22l1.93-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/>
+                    </svg>
+                </button>
+                <a class="btn-icon-round" href="https://github.com" target="_blank" title="GitHub">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                </a>
+                <button class="btn-icon-round" onclick="performLogout()" title="退出登录">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 17v-3H9v-4h7V7l5 5-5 5M14 2a2 2 0 0 1 2 2v2h-2V4H5v16h9v-2h2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="config-card">
+            <div class="card-header-row">
+                <div class="header-left">
+                    <h2><img src="n.ico" class="title-icon">Navidrome 服务器</h2>
+                    <span id="nav-user-badge" class="user-badge" style="display:none">用户: -</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>服务器地址 (URL):</label>
+                <input type="text" id="nav-url" class="form-control" placeholder="例如: http://192.168.1.5:4533">
+            </div>
+            <div class="row-btns">
+                <div class="form-group" style="flex:1">
+                    <label>用户名:</label>
+                    <input type="text" id="nav-user" class="form-control" placeholder="用户名">
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>密码:</label>
+                    <input type="password" id="nav-pass" class="form-control" placeholder="密码">
+                </div>
+            </div>
+            
+            <div class="row-btns">
+                <button id="save-nav-btn" class="btn btn-primary" style="flex:1">保存 Navidrome 配置</button>
+                <button id="del-nav-btn" class="btn btn-danger" style="flex:1">删除配置</button>
+            </div>
+        </div>
+
+        <div class="config-card">
+            <div class="card-header-row">
+                <div class="header-left">
+                    <h2><img src="favicon.ico" class="title-icon">Tidal 账号授权</h2>
+                </div>
+                <div class="header-right">
+                    <div id="tidal-status" class="status-text"></div>
+                </div>
+            </div>
+
+            <p style="color: #aaa; margin-bottom: 20px; text-align: center;">
+                点击下方授权按钮登录 Tidal 授权获取 Token
+            </p>
+
+            <div class="row-btns">
+                <button id="tidal-start-btn" class="btn btn-primary" style="flex: 1;">获取授权</button>
+                <button id="tidal-refresh-btn" class="btn btn-primary" style="background-color:#bbb; color: #000; flex: 1;">刷新 Token</button>
+                <button id="del-tidal-btn" class="btn btn-danger" style="flex: 1;">删除配置</button>
+            </div>
+
+            <div id="auth-step-display" class="auth-display">
+                <p>请访问以下链接并输入授权码：</p>
+                <a id="auth-link" href="#" target="_blank" style="color: #00bfa5; font-size: 1.1em; word-break: break-all;">...</a>
+                <div id="auth-user-code" class="user-code">----</div>
+            </div>
+
+            <div style="margin-top: 20px; display: none;">
+                <button id="tidal-check-btn" class="btn btn-secondary btn-block">已在浏览器完成授权</button>
+            </div>
+
+            </div>
+
+    </div>
+
+    <script>
+        (function() {
+            const loginModal = document.getElementById('login-modal');
+            const mainContainer = document.getElementById('main-container');
+            
+            const observer = new MutationObserver(function(mutations) {
+                if (mainContainer.style.display !== 'none') {
+                    loginModal.classList.remove('is-visible');
+                }
+            });
+            observer.observe(mainContainer, { attributes: true, attributeFilter: ['style'] });
+            
+            if (mainContainer.style.display !== 'none') {
+                loginModal.classList.remove('is-visible');
+            }
+        })();
+
+        async function performLogout() {
+            if(!confirm("确定要退出登录吗？")) return;
+            try {
+                await fetch('/logout', { method: 'POST' });
+            } catch (e) {
+                console.error("Logout request failed", e);
+            } finally {
+                window.location.reload();
+            }
+        }
+
+        function toggleHelpModal(show) {
+            const modal = document.getElementById('help-modal');
+            if (show) {
+                modal.classList.add('is-visible');
+            } else {
+                modal.classList.remove('is-visible');
+            }
+        }
+    </script>
+
+    <script src="/login.js" data-cfasync="false"></script>
+    <script src="/settings.js" type="module"></script>
+</body>
+</html>
