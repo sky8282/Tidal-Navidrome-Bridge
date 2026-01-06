@@ -28,8 +28,9 @@ Admin 层: 基于 python-jose 的 JWT 鉴权，用于保护 Web 管理面板。
 歌词代理: getLyrics 接口被重写，即使是 Navidrome 的歌曲，也能尝试通过元数据匹配从 Tidal 获取同步歌词。
 无损流媒体: 拦截 stream 接口，针对 Tidal 资源请求 playbackinfopostpaywall，解析 LossLess的 FLAC 直链并返回 302 Redirect，大幅降低中间件带宽消耗。
 封面图即时代理: 实现了 getCoverArt 路由，支持从 Tidal CDN 获取不同尺寸 (320x320, 1280x1280) 的封面(自行修改)，或回源至 Navidrome。
+其中专辑名和歌手名前面带 (T) 的为Tidal资源。
 
-5. 🖥️ 📱 客户端推荐
+6. 🖥️ 📱 客户端推荐
 -------------------------------------------------------------------------------------------
 * 🖥️ 电脑端：
 * 飞信 https://github.com/jeffvli/feishin
@@ -66,6 +67,11 @@ python3 main.py
 * 电脑端：Feishin / 手机端：Ds Cloud 或 箭头音乐 中填入：
 * 服务器: http://<IP>:8000 或 https://<IP>:8000
 * 账号密码为登录管理页面的账号密码
+-------------------------------------------------------------------------------------------
+  <img width="3074" height="2250" alt="1" src="https://github.com/user-attachments/assets/d74537be-c649-4cda-9c96-e5a4c5c7c874" />
+  
+-------------------------------------------------------------------------------------------
+  <img width="3074" height="2250" alt="2" src="https://github.com/user-attachments/assets/99fe02f6-9334-482a-9fc9-f8c211d7044d" />
 -------------------------------------------------------------------------------------------
 ```mermaid
 graph TD
