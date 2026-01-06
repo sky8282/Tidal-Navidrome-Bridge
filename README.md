@@ -65,7 +65,7 @@ python3 main.py
 
 ###  🖥️ 📱 客户端接入：
 * 电脑端：Feishin / 手机端：Ds Cloud 或 箭头音乐 中填入：
-* 服务器: http://<IP>:8000 或 https://<IP>:8000
+* 服务器: http://ip:8000 或 https://ip:8000
 * 账号密码为登录管理页面的账号密码
 -------------------------------------------------------------------------------------------
   <img width="1628" height="1768" alt="3" src="https://github.com/user-attachments/assets/8f6ead13-d8d3-40e9-873e-37973d9fa0b7" />
