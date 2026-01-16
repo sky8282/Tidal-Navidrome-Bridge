@@ -97,7 +97,7 @@ graph TD
     TidalSearch["调用 Tidal API"]:::tidal
     NavSearch["调用 Navidrome API"]:::nav
     
-    MergeNode["数据聚合 <br/> 合并、去重、排序"]:::action
+    MergeNode["数据聚合 <br/> 合并、排序"]:::action
     RespXML["返回 Subsonic XML"]:::success
 
     %% --- 播放流程 ---
