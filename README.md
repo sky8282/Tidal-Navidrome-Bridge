@@ -95,7 +95,7 @@ graph TD
     classDef action fill:#4c1d95,stroke:#8b5cf6,color:#ede9fe,stroke-width:2px;
 
     %% 节点定义
-    Start("客户端请求 <br/>🖥️：Feishin <br/>📱：Ds Cloud <br/>📱：箭头音乐"):::base
+    Start("客户端请求 <br/>🖥️：Feishin <br/> 📱：Ds Cloud <br/> 📱：箭头音乐<br/>📱：音流 APP "):::base
     Router{"请求类型 <br/> API 路由分发"}:::decision
     
     %% --- 搜索流程 ---
