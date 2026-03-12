@@ -68,7 +68,7 @@ python3 main.py
 
 ###  🖥️ 📱 客户端接入：
 * 电脑端：
-* Feishin -> navidrome & subsonic 协议
+* Feishin版本1.2.0 -> navidrome & subsonic 协议
 *  手机端：
 *  Ds Cloud -> navidrome 协议
 *  箭头音乐 -> navidrome & subsonic 协议
